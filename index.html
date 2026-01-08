@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Skills Readiness and Career Alignment Assessment</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+body {
+  font-family: Arial, sans-serif;
+  background: #f4f6f8;
+  padding: 20px;
+}
+.container {
+  max-width: 800px;
+  margin: auto;
+  background: #fff;
+  padding: 25px;
+  border-radius: 10px;
+}
+button {
+  display: block;
+  width: 100%;
+  margin: 8px 0;
+  padding: 12px;
+  font-size: 16px;
+}
+</style>
+</head>
+
+<body>
+<div class="container">
+<h2>Skills Readiness and Career Alignment Assessment</h2>
+<p><i>Anonymous | For academic purposes only</i></p>
+
+<div id="quiz"></div>
+<div id="result"></div>
+</div>
+
+<script>
+const questions = [
+  "When thinking about your future career, what concerns you the most?",
+  "How do you currently prepare yourself for future work?",
+  "Which statement best describes your skills right now?",
+  "If given a choice, which training approach would help you most?",
+  "What do you think causes skills mismatch the most?",
+  "When choosing a training program, what matters most to you?",
+  "How confident are you that your future training will lead to employment?",
+  "What do you think should be improved in skills training programs?",
+  "How do you plan to respond to changing job requirements?",
+  "What best describes your current career readiness?"
+];
+
+const choices = ["A","B","C","D","E","F"];
+let scores = {A:0,B:0,C:0,D:0,E:0,F:0};
+let current = 0;
+
+const quizDiv = document.getElementById("quiz");
+
+function loadQuestion() {
+  quizDiv.innerHTML = `<h3>${questions[current]}</h3>`;
+  choices.forEach(letter => {
+    const btn = document.createElement("button");
+    btn.textContent = letter;
+    btn.onclick = () => {
+      scores[letter]++;
+      current++;
+      current < questions.length ? loadQuestion() : showResult();
+    };
+    quizDiv.appendChild(btn);
+  });
+}
+
+function getProfile() {
+  if (scores.F > 2) return "Career Exploration Stage";
+  if (scores.A + scores.B >= 5 || scores.B + scores.E >= 5) return "Strong Skills Alignment";
+  if (scores.C + scores.B >= 4) return "Developing Readiness";
+  if (scores.D >= 3) return "Service-Oriented Readiness";
+  if (scores.E >= 3) return "Technology-Aware but Skill-Building Needed";
+  return "Developing Readiness";
+}
+
+function showResult() {
+  quizDiv.style.display = "none";
+  const profile = getProfile();
+
+  document.getElementById("result").innerHTML = `
+    <h2>Assessment Result</h2>
+    <p><strong>${profile}</strong></p>
+    <p>Your responses indicate your current level of skills readiness and career alignment.</p>
+    <button onclick="submitAnonymousResult('${profile}')">Submit Anonymous Result</button>
+  `;
+}
+
+function submitAnonymousResult(profile) {
+  fetch("https://script.google.com/macros/s/AKfycbyTtnz2GtF__ALCK6WFPTdl1jkhxgN0zceSqsjp0S-PeYrhNO-_hfxO68j-5C9Jar3D/exec", {
+    method: "POST",
+    body: JSON.stringify({ profile: profile }),
+    headers: { "Content-Type": "application/json" }
+  })
+  .then(() => alert("Anonymous result submitted successfully."))
+  .catch(() => alert("Submission failed."));
+}
+
+loadQuestion();
+</script>
+</body>
+</html>
