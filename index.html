@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>KASANAYANG TINATAMASA, HANAP-BUHAY NA AKMA</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+body {
+  font-family: Arial, sans-serif;
+  background: #f4f6f8;
+  padding: 20px;
+}
+.container {
+  max-width: 900px;
+  margin: auto;
+  background: white;
+  padding: 25px;
+  border-radius: 10px;
+}
+button {
+  display: block;
+  width: 100%;
+  margin: 8px 0;
+  padding: 12px;
+  font-size: 16px;
+  text-align: left;
+  cursor: pointer;
+}
+input {
+  width: 100%;
+  padding: 10px;
+  margin: 10px 0;
+  font-size: 16px;
+}
+.result {
+  background: #e0f7fa;
+  padding: 20px;
+  border-radius: 8px;
+}
+</style>
+</head>
+
+<body>
+<div class="container" id="content"></div>
+
+<script>
+// GLOBAL VARIABLES
+const content = document.getElementById("content");
+let currentQuestion = 0;
+let userInfo = { name: "", email: "" };
+let scores = { A:0, B:0, C:0, D:0, E:0, F:0 };
+let answers = [];
+
+// QUESTIONS
+const questions = [
+{q:"When thinking about your future career, what concerns you the most?",a:{A:"Whether my skills will be useful in real jobs",B:"Whether training programs match industry needs",C:"Whether I will gain enough practical experience",D:"Whether my chosen field has stable opportunities",E:"Whether technology changes too fast for my skills",F:"Whether I am choosing the right path at all"}},
+{q:"How do you currently prepare yourself for future work?",a:{A:"By practicing hands-on skills",B:"By learning technical processes and systems",C:"By developing practical problem-solving skills",D:"By improving service and work discipline",E:"By learning digital and technology-related skills",F:"By seeking guidance and career information"}},
+{q:"Which statement best describes your skills right now?",a:{A:"I am confident in technical or mechanical tasks",B:"I understand systems but need more practice",C:"I can perform tasks but still need supervision",D:"I focus on quality and consistency of work",E:"I am comfortable using digital tools",F:"I am still exploring what I am good at"}},
+{q:"If given a choice, which training approach would help you most?",a:{A:"Extensive hands-on technical training",B:"Industry-based technical instruction",C:"Project-based skill training",D:"Work immersion or service exposure",E:"Technology-integrated learning",F:"Career guidance and orientation sessions"}},
+{q:"What do you think causes skills mismatch the most?",a:{A:"Lack of practical experience",B:"Outdated training content",C:"Limited access to proper tools",D:"Insufficient work exposure",E:"Rapid changes in technology",F:"Lack of career guidance"}},
+{q:"When choosing a training program, what matters most to you?",a:{A:"Skills that are directly used in work",B:"Alignment with industry standards",C:"Opportunity to practice skills",D:"Application to service-related jobs",E:"Relevance to modern technology",F:"Clear career direction after training"}},
+{q:"How confident are you that your future training will lead to employment?",a:{A:"Very confident because of skill demand",B:"Confident if aligned with industry",C:"Somewhat confident but unsure",D:"Confident in service-related fields",E:"Confident in technology-based work",F:"Not confident yet"}},
+{q:"What do you think should be improved in skills training programs?",a:{A:"More hands-on activities",B:"Stronger industry partnership",C:"Better training facilities",D:"More real-world exposure",E:"Updated technology content",F:"Better career guidance"}},
+{q:"How do you plan to respond to changing job requirements?",a:{A:"By upgrading my technical skills",B:"By following industry standards",C:"By continuously practicing",D:"By improving service skills",E:"By learning new technologies",F:"By reassessing my career path"}},
+{q:"What best describes your current career readiness?",a:{A:"Ready with strong technical skills",B:"Ready but needs industry alignment",C:"Partially ready, needs more training",D:"Ready for service-oriented work",E:"Ready for technology-based roles",F:"Not yet ready, still exploring"}}
+];
+
+// PROFILES
+const profiles = {
+"Strong Skills Alignment": {
+interpretation:"You show strong awareness of practical skills, industry standards, and employability requirements.",
+recommendation:"Continue developing skills aligned with industry needs through structured, hands-on training."
+},
+"Developing Readiness": {
+interpretation:"You are motivated to build skills but still need more practice and alignment.",
+recommendation:"Engage in workshops, skills training, and practical immersion programs."
+},
+"Service-Oriented Readiness": {
+interpretation:"You value service, discipline, and people-centered work.",
+recommendation:"Strengthen both interpersonal and practical competencies."
+},
+"Technology-Aware but Skill-Building Needed": {
+interpretation:"You are aware of technological change but need more applied skills.",
+recommendation:"Combine technology learning with hands-on experience."
+},
+"Career Exploration Stage": {
+interpretation:"You are still exploring your strengths and career direction.",
+recommendation:"Seek career guidance and exposure before committing to training paths."
+}
+};
+
+// PAGE 1: INTRO
+function loadIntro() {
+  content.innerHTML = `
+  <h2>KASANAYANG TINATAMASA, HANAP-BUHAY NA AKMA</h2>
+  <p><strong>Good day!</strong></p>
+  <p>This 10-item Skills Readiness and Career Alignment Assessment evaluates how prepared your skills are and how well they align with your intended career.</p>
+  <ul>
+    <li>Determine skill–career alignment</li>
+    <li>Identify risks of job mismatch</li>
+    <li>Guide education and career decisions</li>
+  </ul>
+  <p>Responses are confidential and for academic research only. Estimated time: 3–5 minutes.</p>
+  <button onclick="loadUserInfo()">Start Assessment</button>
+  `;
+}
+
+// PAGE 2: USER INFO
+function loadUserInfo() {
+  content.innerHTML = `
+  <h3>Participant Information</h3>
+  <input id="name" placeholder="Full Name (Required)">
+  <input id="email" placeholder="Email Address (Required)">
+  <button onclick="saveUserInfo()">Continue</button>
+  `;
+}
+
+function saveUserInfo() {
+  const name = document.getElementById("name").value.trim();
+  const email = document.getElementById("email").value.trim();
+  if (!name || !email) {
+    alert("Please complete all required fields.");
+    return;
+  }
+  userInfo.name = name;
+  userInfo.email = email;
+  loadQuestion();
+}
+
+// QUIZ
+function loadQuestion() {
+  const q = questions[currentQuestion];
+  content.innerHTML = `<h3>Question ${currentQuestion+1} of ${questions.length}</h3><p>${q.q}</p>`;
+  for (let key in q.a) {
+    const btn = document.createElement("button");
+    btn.textContent = key + ". " + q.a[key];
+    btn.onclick = () => selectAnswer(key);
+    content.appendChild(btn);
+  }
+}
+
+function selectAnswer(letter) {
+  scores[letter]++;
+  answers.push({ question: questions[currentQuestion].q, answer: letter });
+  currentQuestion++;
+  currentQuestion < questions.length ? loadQuestion() : submitData();
+}
+
+// SUBMIT FIRST
+function submitData() {
+  fetch("https://script.google.com/macros/s/AKfycbwvZtmkWOeQtIhvDizUrlFdjHU8BdueQYG7bIlzgsbMe_b9uKZMqUEZNlqxRFYaNRgC/exec", {
+    method: "POST",
+    mode: "no-cors",
+    headers: {"Content-Type":"application/json"},
+    body: JSON.stringify({
+      name: userInfo.name,
+      email: userInfo.email,
+      answers: answers
+    })
+  });
+  showResult();
+}
+
+// RESULT
+function determineProfile() {
+  if (scores.F >= 3) return "Career Exploration Stage";
+  if (scores.A + scores.B >= 6 || scores.B + scores.E >= 6) return "Strong Skills Alignment";
+  if (scores.C + scores.B >= 5) return "Developing Readiness";
+  if (scores.D >= 4) return "Service-Oriented Readiness";
+  if (scores.E >= 4) return "Technology-Aware but Skill-Building Needed";
+  return "Developing Readiness";
+}
+
+function showResult() {
+  const profile = determineProfile();
+  content.innerHTML = `
+  <div class="result">
+    <h2>${profile}</h2>
+    <p><strong>Interpretation:</strong> ${profiles[profile].interpretation}</p>
+    <p><strong>Recommendation:</strong> ${profiles[profile].recommendation}</p>
+    <p><em>Thank you for participating.</em></p>
+  </div>`;
+}
+
+// START
+loadIntro();
+</script>
+</body>
+</html>
